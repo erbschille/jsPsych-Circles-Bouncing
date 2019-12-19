@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My experiment</title>
+    <script src="https://d3js.org/d3.v3.js"></script>
+    <script src="jsPsych-master/jspsych.js"></script>
+    <script src="jsPsych-master/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jsPsych-master/plugins/jspsych-instructions.js"></script>
+    <script src="jsPsych-master/plugins/jspsych-image-keyboard-response.js"></script>
+    <script src="jsPsych-master/plugins/jspsych-circles-bouncing.js"></script>
+    <script src="jsPsych-master/plugins/jspsych-survey-text.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <link href="jsPsych-master/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+  </head>
+  <body></body>
+  <script>
+
+    /* create timeline */
+    var timeline = [];
+
+    /* define welcome message trial */
+    var welcome = {
+      type: "html-keyboard-response",
+      stimulus: "Welcome to the experiment. Press any key to begin."
+    };
+
+//////////////INSTRUCTIONS  /* define instructions trial */
+    var instructions = {
+      type: "instructions",
+      pages: function(){
+        var page0 = "Please read this consent form and click 'Next' to give your consent. You may close your browser if you do not consent. <br><br> " +
+        "<img src = 'img/sonaConsent1.png'></img>" +
+        "<img src = 'img/sonaConsent2.png'></img>" +
+        "<img src = 'img/sonaConsent3.png'></img>"
+        var page1 = "This is a task about estimating percentages.<br><br>"
+        var page2 = "In this task you will be shown a screen full of circles like the one below.<br><br>" +
+        "<img src='img/screen with circles full.png'></img>"
+        var page3 = "However, you won't be able to see <i>all</i> the circles. Some of them will be hidden behind a black rectangle, like on the example screen below.<br><br>" +
+        "<img src='img/dots occluded.png'></img>"
+        var page4 = "There will always be two kinds of circles: blue ones and orange ones.<br><br>" +
+        "Every trial is a new screen with a new distribution of dots. Trials are not connected to each other.<br><br>" +
+        "After each trial, you will always be asked about the <b>blue</b> circles.<br><br>" +
+        "Even though you didn't see the whole screen, please answer what percentage of the circles <strong>on the whole screen, even the hidden parts</strong> you think were blue.<br><br>"
+        var page5 = "When you type your response, please give a number between 0 and 100. <br><br>" +
+        "For example, if we were asking you to estimate what percentage of people in your neighborhood own a dog, <br><br>" +
+        "and you thought the answer was 1 in 4 people, you would type <b>25</b> in the text box."
+        return [page0, page1, page2, page3, page4, page5]
+      },
+      post_trial_gap: 1000,
+      show_clickable_nav: true
+    };
+
+
+////////////////VARIABLES FOR TRIALS
+
+    var prop_list = [[1, 99], [2, 98], [5, 95], [10, 90], [15, 85],
+      [20, 80], [25, 75], [35, 65], [40, 60], [45, 55],
+      [50, 50], [60, 40], [65, 35], [75, 25], [80, 20],
+      [85, 15], [90, 10], [95, 5], [98, 2], [99, 1]];
+
+    var prop_list_for_testing = [[5,95]]
+
+    //var stim_duration = [10000, 1000]; doing one below for poster demo
+
+    var stim_duration = [10000, 1000]
+
+    var rect_size = [[280, 250], [60, 60]]
+
+    var turkSubmitCode =  43*43;
+
+    // block = 5
+    // prop_list_full = []
+    // for (i = 0, i < length(prop_list), i++){
+    //   for (i = 0, j < block, j++){
+    //     prop_list_full = prop_list_full.append(prop_list[i])
+    //   }
+    // }
+    //
+    // prop_list_full = jspsych.shuffle(prop_list_full)
+
+
+//////////////////FUNCTION THAT MAKES DIFFERENT CONDITIONS
+    function stim_maker(p_list, st_dur, r_size){
+      var out = [];
+      for (i=0;i<p_list.length;i++){
+        for (j=0;j<st_dur.length;j++){
+          for (k=0;k<r_size.length;k++){
+            out.push({
+              type: "circles-bouncing",
+              window_size: [800, 650],
+              window_position: [0,0],
+              stimulus_duration: st_dur[j],
+              n_objects: 100,
+              proportion: p_list[i],
+              rect_size: r_size[k],
+              post_trial_gap: 1000,
+              //questions: [{prompt: "What percentage of ALL circles on the screen were BLUE?"}]
+              prompt: "<p>What percentage of ALL circles on the screen, both hidden and visible, do you think were <b><font color='DodgerBlue'> BLUE </font></b> ?</p>"
+
+          });
+        }
+      }
+    }
+    out = jsPsych.randomization.repeat(out, 2) //2 runs through 20 props X 2 lengths x 2 screen sizes (80 total) each run takes about 20 min
+    return out
+  }
+
+//////// gets SONA ID from participants
+var getUrlParameter = function getUrlParameter(sParam) {
+  var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+  sURLVariables = sPageURL.split('&'),
+  sParameterName,
+  i;
+  for (i = 0; i < sURLVariables.length; i++) {
+  sParameterName = sURLVariables[i].split('=');
+
+  if (sParameterName[0] === sParam) {
+  return sParameterName[1] === undefined ? true : sParameterName[1];
+  }
+  }
+};
+
+var SONAID = getUrlParameter('sonaid');
+//var SONAID = "tester007"
+var turkInfo = jsPsych.turk.turkInfo();
+mTurkID =  turkInfo.workerId;
+
+
+///////////// Saves Data
+function saveData(filename, filedata){
+  $.ajax({
+  type:'post',
+  cache: false,
+  url: 'save_data.php', // this is the path to the above PHP script
+  data: {filename: filename, filedata: filedata}
+  });
+};
+
+//////////////stimmaker to make Test Block
+var stims1 = stim_maker(prop_list, stim_duration, rect_size)
+var test_block1 = {
+  timeline: stims1
+}
+
+/////////* define debrief */
+var debrief_block = {
+  type: "instructions",
+  pages: function(){
+    // var page1 = "This task is over.<br><br> Thank you for your participation in this experiment. <br><br>" +
+    // "Please enter the code: <b>" + turkSubmitCode + "</b> in Mechanical Turk to complete this HIT. <br><br>" +
+    // "You may now close this browser window."
+    var page1 = "This task is over.<br><br> Thank you for your participation in this experiment. <br><br>" +
+    "This experiment was designed to understand how people estimate proportions under uncertainty." +
+    "We believe that increased uncertainty leads people hedge their estimates towards the center of the distribtion (in this case, closer to 50% of the dots being blue)." +
+    "There were some trials where uncertainty was higher--when more of the screen was obscured." +
+    "The goal of this study was to determine whether people hedged their estimates more as a result of increased uncertainty. <br><br>" +
+    "You may now close your web browser."
+    return [page1]
+  },
+  post_trial_gap: 1000,
+  show_clickable_nav: false
+};
+
+
+/////Data log
+var dataLog = {
+ type: 'html-keyboard-response',
+ stimulus: " ",
+ trial_duration: 100,
+ on_finish: function(data) {
+      var time_foo = new Date();
+      //console.log(data); //inspecting data element
+      var experiment_time = time_foo.getTime();
+      jsPsych.data.addProperties({subjID: SONAID});
+      saveData('Circles_Bouncing' + '_ID' + SONAID + '_T' + experiment_time +".csv", jsPsych.data.get().csv());
+      //jsPsych.data.addProperties({turkID: mTurkID});
+      //saveData('Circles_Bouncing' + '_ID' + mTurkID + '_T' + experiment_time +".csv", jsPsych.data.get().csv());
+}
+}
+
+/// Timeline Pushes
+timeline.push(welcome)
+timeline.push(instructions)
+timeline.push(test_block1)
+timeline.push(dataLog)
+timeline.push(debrief_block)
+
+
+///////* start the experiment */
+    jsPsych.init({
+      timeline: timeline,
+      //on_finish: function() {
+        //jsPsych.data.displayData();
+      //}
+    });
+  </script>
+</html>
