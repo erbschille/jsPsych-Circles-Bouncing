@@ -38,7 +38,7 @@
         "<img src='img/screen with circles full.png'></img>"
         var page3 = "There will always be two kinds of circles: blue ones and orange ones.<br><br>" +
         "Every trial is a new screen with a new distribution of dots. Trials are not connected to each other.<br><br>" +
-        "After each trial, you will always be asked about the <b>blue</b> circles."
+        "After each trial, you will always be asked about the <b><font color='DodgerBlue'> blue </font></b> circles."
         var page4 = "When you type your response, please give a number between 0 and 100. <br><br>" +
         "For example, if we were asking you to estimate what percentage of people in your neighborhood own a dog, <br><br>" +
         "and you thought the answer was 1 in 4 people, you would type <b>25</b> in the text box."
@@ -64,6 +64,8 @@
 
     var rect_size = [[0,0]]
 
+    var plugin_type = ["circles-no-occluder", "circles-static"]
+
     var turkSubmitCode =  43*43;
 
     // block = 5
@@ -78,13 +80,14 @@
 
 
 //////////////////FUNCTION THAT MAKES DIFFERENT CONDITIONS
-    function stim_maker(p_list, st_dur, r_size){
+    function stim_maker(p_list, st_dur, r_size, p_type){
       var out = [];
       for (i=0;i<p_list.length;i++){
         for (j=0;j<st_dur.length;j++){
           for (k=0;k<r_size.length;k++){
+            for (p=0;p<p_type.length;p++){
             out.push({
-              type: "circles-no-occluder",
+              type: p_type[p],
               window_size: [800, 650],
               window_position: [0,0],
               stimulus_duration: st_dur[j],
@@ -95,11 +98,12 @@
               //questions: [{prompt: "What percentage of ALL circles on the screen were BLUE?"}]
               prompt: "<p>What percentage of all circles on the screen do you think were <b><font color='DodgerBlue'> BLUE </font></b> ?</p>"
 
-          });
+            });
+          }
         }
       }
     }
-    out = jsPsych.randomization.repeat(out, 2) //2 runs through 20 props X 2 lengths x 2 screen sizes (80 total) each run takes about 20 min
+    out = jsPsych.randomization.repeat(out, 1) //1 run through 20 props X 2 lengths x 2 screen sizes X 2 plugin types (80 total), 1 run takes about 10? min
     return out
   }
 
@@ -135,7 +139,7 @@ function saveData(filename, filedata){
 };
 
 //////////////stimmaker to make Test Block
-var stims1 = stim_maker(prop_list, stim_duration, rect_size)
+var stims1 = stim_maker(prop_list, stim_duration, rect_size, plugin_type)
 var test_block1 = {
   timeline: stims1
 }
