@@ -122,7 +122,7 @@ var getUrlParameter = function getUrlParameter(sParam) {
   }
 };
 
-var SONAID = getUrlParameter('sonaid');
+//var SONAID = getUrlParameter('sonaid');
 //var SONAID = "tester007"
 var turkInfo = jsPsych.turk.turkInfo();
 mTurkID =  turkInfo.workerId;
@@ -148,15 +148,15 @@ var test_block1 = {
 var debrief_block = {
   type: "instructions",
   pages: function(){
-    // var page1 = "This task is over.<br><br> Thank you for your participation in this experiment. <br><br>" +
-    // "Please enter the code: <b>" + turkSubmitCode + "</b> in Mechanical Turk to complete this HIT. <br><br>" +
-    // "You may now close this browser window."
     var page1 = "This task is over.<br><br> Thank you for your participation in this experiment. <br><br>" +
-    "This experiment was designed to understand how people estimate proportions under uncertainty." +
-    "We believe that increased uncertainty leads people hedge their estimates towards the center of the distribtion (in this case, closer to 50% of the dots being blue)." +
-    "There were some trials where uncertainty was higher--when more of the screen was obscured." +
-    "The goal of this study was to determine whether people hedged their estimates more as a result of increased uncertainty. <br><br>" +
-    "You may now close your web browser."
+    "Please enter the code: <b>" + turkSubmitCode + "</b> in Mechanical Turk to complete this HIT. <br><br>" +
+    "You may now close this browser window."
+    // var page1 = "This task is over.<br><br> Thank you for your participation in this experiment. <br><br>" +
+    // "This experiment was designed to understand how people estimate proportions under uncertainty." +
+    // "We believe that increased uncertainty leads people hedge their estimates towards the center of the distribtion (in this case, closer to 50% of the dots being blue)." +
+    // "There were some trials where uncertainty was higher--when more of the screen was obscured." +
+    // "The goal of this study was to determine whether people hedged their estimates more as a result of increased uncertainty. <br><br>" +
+    // "You may now close your web browser."
     return [page1]
   },
   post_trial_gap: 1000,
@@ -173,10 +173,10 @@ var dataLog = {
       var time_foo = new Date();
       //console.log(data); //inspecting data element
       var experiment_time = time_foo.getTime();
-      jsPsych.data.addProperties({subjID: SONAID});
-      saveData('Circles_Bouncing' + '_ID' + SONAID + '_T' + experiment_time +".csv", jsPsych.data.get().csv());
-      //jsPsych.data.addProperties({turkID: mTurkID});
-      //saveData('Circles_Bouncing' + '_ID' + mTurkID + '_T' + experiment_time +".csv", jsPsych.data.get().csv());
+      //jsPsych.data.addProperties({subjID: SONAID});
+      //saveData('Circles_Bouncing' + '_ID' + SONAID + '_T' + experiment_time +".csv", jsPsych.data.get().csv());
+      jsPsych.data.addProperties({turkID: mTurkID});
+      saveData('Circles_Bouncing' + '_ID' + mTurkID + '_T' + experiment_time +".csv", jsPsych.data.get().csv());
 }
 }
 
